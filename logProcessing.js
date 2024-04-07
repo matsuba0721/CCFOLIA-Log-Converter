@@ -1,7 +1,6 @@
 const fileInput = document.getElementById("fileInput");
 const dropZone = document.getElementById("dropZone");
 const output = document.getElementById("output");
-const chat = document.getElementById("chat");
 
 const option = document.getElementById("option");
 const downloadButton = document.getElementById("downloadLink");
@@ -67,11 +66,10 @@ function getTextNodes() {
 }
 
 function handleSelect(files) {
-	// ファイルを処理する...
-	if (document.querySelector("#log")) {
-		document.querySelector("#log").remove();
-		document.querySelector("style").remove();
+	while (output.firstChild) {
+		output.removeChild(output.firstChild);
 	}
+
 	document.querySelector("#downloadLink").style.display = "inline-block";
 	const file = files[0];
 	if (file == undefined) {
@@ -105,6 +103,10 @@ function handleSelect(files) {
 				prev.text += "<br>" + text;
 			}
 		}
+
+		const chat = document.createElement("chat");
+		chat.id = "chat";
+		output.appendChild(chat);
 
 		const messages = document.createElement("ul");
 		messages.className = "message";
