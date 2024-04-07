@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <title>ココフォリアログ整形ツール</title>
+    <link href="./main.css" rel="stylesheet">
+    <style>
+        .message {
+            padding-top: 1em;
+            background: #222;
+        }
+
+        .message li {
+            color: #EEE;
+            list-style: none;
+            flex-direction: row;
+            max-width: 95%;
+        }
+
+        .message li div {
+            font-weight: bold;
+            margin-top: 1em;
+            flex-shrink: 0;
+            flex-grow: 0;
+            z-index: 1;
+        }
+
+        .message li p {
+            background-color: #444;
+            box-shadow: 2px 2px 0px #aaa;
+            margin: 0em;
+            padding: 0.5em;
+            position: relative;
+            text-align: left;
+        }
+
+        .message li p:before {
+            content: "";
+            display: block;
+            width: 0;
+            height: 0;
+            position: absolute;
+        }
+    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body class="wf-sawarabigothic">
+    <header>
+        <h3>ココフォリアログ整形ツール</h3>
+    </header>
+    <main>
+        <div id="dropZone">
+            <form id="form">ここにファイルをドロップ
+                <input type="file" id="fileInput" name="file" accept="text/*,.html">
+            </form>
+        </div>
+        <div>
+            <a id="downloadLink" download="">HTMLをダウンロード</a>
+        </div>
+        <div id="option"></div>
+        <div id="output"></div>
+        <div id="chat"></div>
+    </main>
+    <footer>
+
+    </footer>
+    <script src="./jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+        crossorigin="anonymous"></script>
+    <script src="./logProcessing.js"></script>
+    <script src="./downloadhtml.js"></script>
+</body>
+
+</html>
