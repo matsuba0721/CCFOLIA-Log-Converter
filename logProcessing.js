@@ -133,6 +133,18 @@ function handleSelect(files) {
 				displayCheckLabel.style.fontWeight = "bold";
 				displayTd.appendChild(displayCheckLabel);
 
+				displayCheck.onclick = function (event) {
+					const name = event.target.value;
+					const id = userids[name];
+					const messages = document.getElementsByClassName(id);
+					for (let index = 0; index < messages.length; index++) {
+						const element = messages[index];
+						element.style.display = event.target.checked ? "" : "none";
+					}
+					const check = document.getElementById("option-label-" + id);
+					check.style.textDecoration = event.target.checked ? "none" : "line-through";
+				};
+
 				const previewTd = document.createElement("td");
 				userTr.appendChild(previewTd);
 				const previewBox = document.createElement("div");
@@ -173,16 +185,6 @@ function handleSelect(files) {
 					};
 				});
 				displayrColorTd.lastChild.checked = true;
-
-				displayCheck.onclick = function (event) {
-					const name = event.target.value;
-					const id = userids[name];
-					const messages = document.getElementsByClassName(id);
-					for (let index = 0; index < messages.length; index++) {
-						const element = messages[index];
-						element.style.display = event.target.checked ? "" : "none";
-					}
-				};
 			});
 
 		const chat = document.createElement("chat");
