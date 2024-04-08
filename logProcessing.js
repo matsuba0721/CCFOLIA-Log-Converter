@@ -149,7 +149,7 @@ function handleSelect(files) {
 				userTr.appendChild(previewTd);
 				const previewBox = document.createElement("div");
 				previewBox.id = "option-preview-" + userids[name];
-				previewBox.innerHTML = "#EEE";
+				previewBox.innerHTML = "Ccふぉリ亜";
 				previewBox.style.width = "7em";
 				previewBox.style.color = "#EEE";
 				previewBox.style.backgroundColor = "#444";
