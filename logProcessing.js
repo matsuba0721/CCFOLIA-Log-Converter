@@ -94,24 +94,29 @@ function handleSelect(files) {
 		output.appendChild(div);
 
 		const aggregatedLogs = [];
-		const userids = new Object();
+		const users = new Object();
 		for (let index = 5, prev = { name: "", text: "" }; document.querySelector("#log > p:nth-child(" + index + ")"); index++) {
 			const name = document.querySelector("#log > p:nth-child(" + index + ") > span:nth-child(2)").textContent.trim();
 			const text = document.querySelector("#log > p:nth-child(" + index + ") > span:nth-child(3)").innerHTML;
+			const style = document.querySelector("#log > p:nth-child(" + index + ")").style;
 			if (prev.name != name) {
 				const aggregatedLog = new Object();
 				aggregatedLog.name = name;
 				aggregatedLog.text = text;
 				prev = aggregatedLog;
 				const id = aggregatedLogs.push(aggregatedLog);
-				userids[name] = `user-${id}`;
+				const user = new Object();
+				user.id = `user-${id}`;
+				user.color = style.color;
+				users[name] = user;
 			} else {
 				prev.text += "<br>" + text;
 			}
 		}
-		Object.keys(userids)
+		Object.keys(users)
 			.sort()
 			.forEach((name) => {
+				const user = users[name];
 				const userTr = document.createElement("tr");
 				userTr.style.height = "2.2em";
 				optiontable.appendChild(userTr);
@@ -120,22 +125,22 @@ function handleSelect(files) {
 				userTr.appendChild(displayTd);
 				const displayCheck = document.createElement("input");
 				displayCheck.type = "checkbox";
-				displayCheck.id = "option-" + userids[name];
-				displayCheck.name = "option-" + userids[name];
+				displayCheck.id = "option-" + user.id;
+				displayCheck.name = "option-" + user.id;
 				displayCheck.value = name;
 				displayCheck.checked = true;
 				displayTd.appendChild(displayCheck);
 				const displayCheckLabel = document.createElement("label");
-				displayCheckLabel.id = "option-label-" + userids[name];
-				displayCheckLabel.htmlFor = "option-" + userids[name];
+				displayCheckLabel.id = "option-label-" + user.id;
+				displayCheckLabel.htmlFor = "option-" + user.id;
 				displayCheckLabel.innerText = name;
-				displayCheckLabel.style.color = "#EEE";
+				displayCheckLabel.style.color = user.color;
 				displayCheckLabel.style.fontWeight = "bold";
 				displayTd.appendChild(displayCheckLabel);
 
 				displayCheck.onclick = function (event) {
 					const name = event.target.value;
-					const id = userids[name];
+					const id = user.id;
 					const messages = document.getElementsByClassName(id);
 					for (let index = 0; index < messages.length; index++) {
 						const element = messages[index];
@@ -148,10 +153,10 @@ function handleSelect(files) {
 				const previewTd = document.createElement("td");
 				userTr.appendChild(previewTd);
 				const previewBox = document.createElement("div");
-				previewBox.id = "option-preview-" + userids[name];
+				previewBox.id = "option-preview-" + user.id;
 				previewBox.innerHTML = "Ccふぉリ亜";
 				previewBox.style.width = "7em";
-				previewBox.style.color = "#EEE";
+				previewBox.style.color = user.color;
 				previewBox.style.backgroundColor = "#444";
 				previewBox.style.boxShadow = "2px 2px 0px #aaa";
 				previewTd.appendChild(previewBox);
@@ -161,8 +166,8 @@ function handleSelect(files) {
 				const colorCodes = ["#222222", "#F44336", "#E91E63", "#9C27B0", "#673AB7", "#3F51B5", "#2196F3", "#03A9F4", "#00BCD4", "#009688", "#4CAF50", "#8BC34A", "#CDDC39", "#FFEB3B", "#FFC107", "#FF9800", "#FF5722", "#795548", "#607D8B", "#9E9E9E", "#E0E0E0"];
 				colorCodes.forEach((colorCode) => {
 					const colorButton = document.createElement("div");
-					colorButton.value = userids[name];
-					colorButton.name = "option-group-" + userids[name];
+					colorButton.value = user.id;
+					colorButton.name = "option-group-" + user.id;
 					colorButton.style.backgroundColor = colorCode;
 					colorButton.style.width = "1.5em";
 					colorButton.style.height = "1.5em";
@@ -196,7 +201,9 @@ function handleSelect(files) {
 		chat.append(messages);
 		aggregatedLogs.forEach((log) => {
 			const message = document.createElement("li");
-			message.className = userids[log.name];
+			message.className = users[log.name].id;
+			message.style.color = users[log.name].color;
+
 			messages.append(message);
 
 			const name = document.createElement("div");
