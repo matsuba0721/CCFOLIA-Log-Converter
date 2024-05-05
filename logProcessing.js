@@ -1,5 +1,7 @@
 const fileInput = document.getElementById("fileInput");
 const dropZone = document.getElementById("dropZone");
+const processingStatus = document.getElementById("processingStatus");
+
 const option = document.getElementById("option");
 const optiontable = document.getElementById("optiontable");
 const output = document.getElementById("output");
@@ -76,7 +78,7 @@ function handleSelect(files) {
 	}
 	option.style.display = "none";
 
-	document.querySelector("#downloadLink").style.display = "inline-block";
+	// document.querySelector("#downloadLink").style.display = "inline-block";
 	const file = files[0];
 	if (file == undefined) {
 		document.querySelector("#downloadLink").style.display = "none";
@@ -84,139 +86,7 @@ function handleSelect(files) {
 	}
 	const reader = new FileReader();
 	reader.readAsText(file);
-
-	reader.onload = () => {
-		const div = document.createElement("div");
-		div.id = "log";
-		div.style.maxWidth = "100%";
-		div.style.display = "none";
-		div.innerHTML = reader.result;
-		output.appendChild(div);
-
-		const aggregatedLogs = [];
-		const users = new Object();
-		for (let index = 5, prev = { name: "", text: "" }; document.querySelector("#log > p:nth-child(" + index + ")"); index++) {
-			const name = document.querySelector("#log > p:nth-child(" + index + ") > span:nth-child(2)").textContent.trim();
-			const text = document.querySelector("#log > p:nth-child(" + index + ") > span:nth-child(3)").innerHTML;
-			const style = document.querySelector("#log > p:nth-child(" + index + ")").style;
-			if (prev.name != name) {
-				const aggregatedLog = new Object();
-				aggregatedLog.name = name;
-				aggregatedLog.text = text;
-				prev = aggregatedLog;
-				const id = aggregatedLogs.push(aggregatedLog);
-				const user = new Object();
-				user.id = `user-${id}`;
-				user.color = style.color;
-				users[name] = user;
-			} else {
-				prev.text += "<br>" + text;
-			}
-		}
-		Object.keys(users)
-			.sort()
-			.forEach((name) => {
-				const user = users[name];
-				const userTr = document.createElement("tr");
-				userTr.style.height = "2.2em";
-				optiontable.appendChild(userTr);
-
-				const displayTd = document.createElement("td");
-				userTr.appendChild(displayTd);
-				const displayCheck = document.createElement("input");
-				displayCheck.type = "checkbox";
-				displayCheck.id = "option-" + user.id;
-				displayCheck.name = "option-" + user.id;
-				displayCheck.value = name;
-				displayCheck.checked = true;
-				displayTd.appendChild(displayCheck);
-				const displayCheckLabel = document.createElement("label");
-				displayCheckLabel.id = "option-label-" + user.id;
-				displayCheckLabel.htmlFor = "option-" + user.id;
-				displayCheckLabel.innerText = name;
-				displayCheckLabel.style.color = user.color;
-				displayCheckLabel.style.fontWeight = "bold";
-				displayTd.appendChild(displayCheckLabel);
-
-				displayCheck.onclick = function (event) {
-					const name = event.target.value;
-					const id = user.id;
-					const messages = document.getElementsByClassName(id);
-					for (let index = 0; index < messages.length; index++) {
-						const element = messages[index];
-						element.style.display = event.target.checked ? "" : "none";
-					}
-					const check = document.getElementById("option-label-" + id);
-					check.style.textDecoration = event.target.checked ? "none" : "line-through";
-				};
-
-				const previewTd = document.createElement("td");
-				userTr.appendChild(previewTd);
-				const previewBox = document.createElement("div");
-				previewBox.id = "option-preview-" + user.id;
-				previewBox.innerHTML = "Ccふぉリ亜";
-				previewBox.style.width = "7em";
-				previewBox.style.color = user.color;
-				previewBox.style.backgroundColor = "#444";
-				previewBox.style.boxShadow = "2px 2px 0px #aaa";
-				previewTd.appendChild(previewBox);
-
-				const displayrColorTd = document.createElement("td");
-				userTr.appendChild(displayrColorTd);
-				const colorCodes = ["#222222", "#F44336", "#E91E63", "#9C27B0", "#673AB7", "#3F51B5", "#2196F3", "#03A9F4", "#00BCD4", "#009688", "#4CAF50", "#8BC34A", "#CDDC39", "#FFEB3B", "#FFC107", "#FF9800", "#FF5722", "#795548", "#607D8B", "#9E9E9E", "#E0E0E0"];
-				colorCodes.forEach((colorCode) => {
-					const colorButton = document.createElement("div");
-					colorButton.value = user.id;
-					colorButton.name = "option-group-" + user.id;
-					colorButton.style.backgroundColor = colorCode;
-					colorButton.style.width = "1.5em";
-					colorButton.style.height = "1.5em";
-					colorButton.style.float = "left";
-					colorButton.style.margin = "2px";
-					displayrColorTd.appendChild(colorButton);
-
-					colorButton.onclick = function (event) {
-						const id = event.target.value;
-						const label = document.getElementById("option-label-" + id);
-						label.style.color = event.target.style.backgroundColor;
-						const preview = document.getElementById("option-preview-" + id);
-						preview.style.color = event.target.style.backgroundColor;
-
-						const messages = document.getElementsByClassName(id);
-						for (let index = 0; index < messages.length; index++) {
-							const element = messages[index];
-							element.style.color = event.target.style.backgroundColor;
-						}
-					};
-				});
-				displayrColorTd.lastChild.checked = true;
-			});
-
-		const chat = document.createElement("chat");
-		chat.id = "chat";
-		output.appendChild(chat);
-
-		const messages = document.createElement("ul");
-		messages.className = "message";
-		chat.append(messages);
-		aggregatedLogs.forEach((log) => {
-			const message = document.createElement("li");
-			message.className = users[log.name].id;
-			message.style.color = users[log.name].color;
-
-			messages.append(message);
-
-			const name = document.createElement("div");
-			name.innerText = log.name;
-			message.append(name);
-			const text = document.createElement("p");
-			text.innerHTML = log.text;
-			message.append(text);
-		});
-
-		output.style.display = "";
-		option.style.display = "";
-	};
+	reader.onload = aggregate;
 }
 dropZone.addEventListener("drop", function (e) {
 	e.stopPropagation();
@@ -228,6 +98,150 @@ dropZone.addEventListener("drop", function (e) {
 fileInput.addEventListener("change", function () {
 	handleSelect(this.files);
 });
+
+async function aggregate() {
+	const div = document.createElement("div");
+	div.id = "log";
+	div.style.maxWidth = "100%";
+	div.style.display = "none";
+	div.innerHTML = this.result;
+	output.appendChild(div);
+
+	processingStatus.innerText = `ファイル読み込み中...${0}%`;
+
+	const aggregatedLogs = [];
+	const users = new Object();
+	const len = document.getElementById("log").childElementCount;
+
+	for (let index = 5, prev = { name: "", text: "" }; document.querySelector("#log > p:nth-child(" + index + ")"); index++) {
+		processingStatus.innerText = `ファイル読み込み中...${Math.trunc((100 * index) / len)}%`;
+
+		const name = document.querySelector("#log > p:nth-child(" + index + ") > span:nth-child(2)").textContent.trim();
+		const text = document.querySelector("#log > p:nth-child(" + index + ") > span:nth-child(3)").innerHTML;
+		const style = document.querySelector("#log > p:nth-child(" + index + ")").style;
+		if (prev.name != name) {
+			const aggregatedLog = new Object();
+			aggregatedLog.name = name;
+			aggregatedLog.text = text;
+			prev = aggregatedLog;
+			const id = aggregatedLogs.push(aggregatedLog);
+			const user = new Object();
+			user.id = `user-${id}`;
+			user.color = style.color;
+			users[name] = user;
+		} else {
+			prev.text += "<br>" + text;
+		}
+	}
+	Object.keys(users)
+		.sort()
+		.forEach((name) => {
+			const user = users[name];
+			const userTr = document.createElement("tr");
+			userTr.style.height = "2.2em";
+			optiontable.appendChild(userTr);
+
+			const displayTd = document.createElement("td");
+			userTr.appendChild(displayTd);
+			const displayCheck = document.createElement("input");
+			displayCheck.type = "checkbox";
+			displayCheck.id = "option-" + user.id;
+			displayCheck.name = "option-" + user.id;
+			displayCheck.value = name;
+			displayCheck.checked = true;
+			displayTd.appendChild(displayCheck);
+			const displayCheckLabel = document.createElement("label");
+			displayCheckLabel.id = "option-label-" + user.id;
+			displayCheckLabel.htmlFor = "option-" + user.id;
+			displayCheckLabel.innerText = name;
+			displayCheckLabel.style.color = user.color;
+			displayCheckLabel.style.fontWeight = "bold";
+			displayTd.appendChild(displayCheckLabel);
+
+			displayCheck.onclick = function (event) {
+				const name = event.target.value;
+				const id = user.id;
+				const messages = document.getElementsByClassName(id);
+				for (let index = 0; index < messages.length; index++) {
+					const element = messages[index];
+					element.style.display = event.target.checked ? "" : "none";
+				}
+				const check = document.getElementById("option-label-" + id);
+				check.style.textDecoration = event.target.checked ? "none" : "line-through";
+			};
+
+			const previewTd = document.createElement("td");
+			userTr.appendChild(previewTd);
+			const previewBox = document.createElement("div");
+			previewBox.id = "option-preview-" + user.id;
+			previewBox.innerHTML = "Ccふぉリ亜";
+			previewBox.style.width = "7em";
+			previewBox.style.color = user.color;
+			previewBox.style.backgroundColor = "#444";
+			previewBox.style.boxShadow = "2px 2px 0px #aaa";
+			previewTd.appendChild(previewBox);
+
+			const displayrColorTd = document.createElement("td");
+			userTr.appendChild(displayrColorTd);
+			const colorCodes = ["#222222", "#F44336", "#E91E63", "#9C27B0", "#673AB7", "#3F51B5", "#2196F3", "#03A9F4", "#00BCD4", "#009688", "#4CAF50", "#8BC34A", "#CDDC39", "#FFEB3B", "#FFC107", "#FF9800", "#FF5722", "#795548", "#607D8B", "#9E9E9E", "#E0E0E0"];
+			colorCodes.forEach((colorCode) => {
+				const colorButton = document.createElement("div");
+				colorButton.value = user.id;
+				colorButton.name = "option-group-" + user.id;
+				colorButton.style.backgroundColor = colorCode;
+				colorButton.style.width = "1.5em";
+				colorButton.style.height = "1.5em";
+				colorButton.style.float = "left";
+				colorButton.style.margin = "2px";
+				displayrColorTd.appendChild(colorButton);
+
+				colorButton.onclick = function (event) {
+					const id = event.target.value;
+					const label = document.getElementById("option-label-" + id);
+					label.style.color = event.target.style.backgroundColor;
+					const preview = document.getElementById("option-preview-" + id);
+					preview.style.color = event.target.style.backgroundColor;
+
+					const messages = document.getElementsByClassName(id);
+					for (let index = 0; index < messages.length; index++) {
+						const element = messages[index];
+						element.style.color = event.target.style.backgroundColor;
+					}
+				};
+			});
+			displayrColorTd.lastChild.checked = true;
+		});
+
+	const chat = document.createElement("chat");
+	chat.id = "chat";
+	output.appendChild(chat);
+
+	const messages = document.createElement("ul");
+	messages.className = "message";
+	chat.append(messages);
+	for (let index = 0; index < aggregatedLogs.length; index++) {
+		processingStatus.innerText = `ログ整形中...${Math.trunc((100 * index) / aggregatedLogs.length)}%`;
+
+		const log = aggregatedLogs[index];
+		const message = document.createElement("li");
+		message.className = users[log.name].id;
+		message.style.color = users[log.name].color;
+
+		messages.append(message);
+
+		const name = document.createElement("div");
+		name.innerText = log.name;
+		message.append(name);
+		const text = document.createElement("p");
+		text.innerHTML = log.text;
+		message.append(text);
+	}
+
+	output.style.display = "";
+	option.style.display = "";
+	document.querySelector("#downloadLink").style.display = "inline-block";
+	processingStatus.innerText = "";
+}
 
 function htmlDownload(event) {
 	event.preventDefault();
